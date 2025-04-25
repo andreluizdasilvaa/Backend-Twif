@@ -4,7 +4,7 @@ const prisma = require('../../models/prisma');
 
 // Rota de processamento do cadastro
 const register = async (req, res) => {
-    const { email, senha, usernick, nome, profilePicture } = req.body;
+    const { email, senha, usernick, nome, profilePicture, nascimento, curso } = req.body;
 
     // Inicializa isAdmin como false
     let isadmin = false;
@@ -35,7 +35,7 @@ const register = async (req, res) => {
         }
 
         // Criptografando a senha com proteção 8
-        const senhaHash = await bcrypt.hash(senha, process.env.SALT_ROUNDS || 8);
+        const senhaHash = await bcrypt.hash(senha, parseInt(process.env.SALT_ROUNDS) || 8);
 
         // Cria um novo usuário no banco de dados com os dados fornecidos
         const user = await prisma.user.create({
@@ -46,6 +46,8 @@ const register = async (req, res) => {
                 senha: senhaHash,
                 profilePicture,
                 isadmin: isadmin,
+                nascimento: nascimento,
+                course: curso,
             }
         });
         console.log(user); // remover isso dps

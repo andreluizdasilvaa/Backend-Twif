@@ -14,6 +14,6 @@ router.get('/posts/:postId/comments', auth_user, listComment);
 router.post('/posts/:postId/comments', auth_user, createComment);
 
 // Rota DELETE para excluir um comentário
-router.delete('/feed/posts/:postId/comments/:commentId', auth_user, deleteComment);
+router.delete('/posts/:postId/comments/:commentId', auth_user, deleteComment);
 
 module.exports = router;
