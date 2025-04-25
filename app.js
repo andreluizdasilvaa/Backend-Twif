@@ -9,6 +9,7 @@ const commentRoutes = require('./routes/commentRoutes')
 const authRoutes = require('./routes/authRoutes');
 const perfilRoutes = require('./routes/perfilRoutes');
 const relatorioRoutes = require('./routes/relatorioRoutes')
+const supportRoutes = require('./routes/supportRoutes');
 
 // Importando o middlewares
 const { logger } = require('./middlewares/logger');
@@ -37,7 +38,7 @@ app.use('/auth', authRoutes);
 app.use('/relatorios', relatorioRoutes);
 app.use('/user', perfilRoutes);
 app.use('/feed', feedRoutes);
-
+app.use('/suporte', supportRoutes);
 app.use('/comments', commentRoutes);
 
 // app.use('/', perfilRoutes, commentRoutes, feedRoutes);
