@@ -23,6 +23,9 @@ const userByNickModel = async (usernick, userId, isAdmin) => {
             profilePicture: true,
             usernick: true,
             isadmin: true,
+            nascimento: true,
+            course: true,  
+            bio: true,  
             posts: {
                 select: {
                     id: true,
