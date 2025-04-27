@@ -86,6 +86,7 @@ model user {
   bio            String?
   isadmin        Boolean  @default(false)
   profilePicture String   @default("defaultphoto.png")
+  imageDefault   Boolean  @default(true)
   createdAt      DateTime @default(now())
 
   // Lados opostos das relações

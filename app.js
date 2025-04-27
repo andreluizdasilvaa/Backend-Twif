@@ -9,9 +9,10 @@ const commentRoutes = require('./routes/commentRoutes')
 const authRoutes = require('./routes/authRoutes');
 const perfilRoutes = require('./routes/perfilRoutes');
 const relatorioRoutes = require('./routes/relatorioRoutes')
+const imageRoutes = require('./routes/imageRoutes');
 
 // Importando o middlewares
-const { logger } = require('./middlewares/logger');
+const logger = require('./middlewares/logger');
 const errorHandler = require('./utils/errorHandler');
 const cookieParser = require('cookie-parser');
 
@@ -37,7 +38,7 @@ app.use('/auth', authRoutes);
 app.use('/relatorios', relatorioRoutes);
 app.use('/user', perfilRoutes);
 app.use('/feed', feedRoutes);
-
+app.use('/image', imageRoutes);
 app.use('/comments', commentRoutes);
 
 // app.use('/', perfilRoutes, commentRoutes, feedRoutes);
