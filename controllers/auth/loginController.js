@@ -24,7 +24,10 @@ const login = async (req, res) => {
         }
 
         generate_token_user(user, req, res, () => {
-            return res.status(200).json({ redirect: "/feed" });
+            return res.status(200).json({ 
+                redirect: "/feed",
+                token: res.locals.token
+             });
         });
     } catch (err) {
         console.error(err);
