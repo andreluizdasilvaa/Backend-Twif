@@ -10,6 +10,8 @@ const authRoutes = require('./routes/authRoutes');
 const perfilRoutes = require('./routes/perfilRoutes');
 const relatorioRoutes = require('./routes/relatorioRoutes')
 const imageRoutes = require('./routes/imageRoutes');
+const fixProblemRoutes = require('./routes/fixProblemRoutes');
+
 
 // Importando o middlewares
 const logger = require('./middlewares/logger');
@@ -33,12 +35,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+app.use(express.static(path.join(__dirname, 'public')));
 // Rotas
 app.use('/auth', authRoutes);
 app.use('/relatorios', relatorioRoutes);
 app.use('/user', perfilRoutes);
 app.use('/feed', feedRoutes);
 app.use('/image', imageRoutes);
+app.use('/fix-problem', fixProblemRoutes);
 app.use('/comments', commentRoutes);
 
 // app.use('/', perfilRoutes, commentRoutes, feedRoutes);
