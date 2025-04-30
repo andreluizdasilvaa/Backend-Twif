@@ -11,7 +11,7 @@ const deletePostId = require('../controllers/feed/deletePostIdController')
 
 
 // Rota para retornar todos os posts do DB
-router.get('/posts', auth_user, posts); 
+router.get('/posts', auth_user, posts);
 
 // Retorna um post com base no id do post( postId )
 router.get('/posts/:postId', searchPostId);

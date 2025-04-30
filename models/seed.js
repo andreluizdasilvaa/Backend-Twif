@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-const { faker } = require('@faker-js/faker');
+const { faker, fa } = require('@faker-js/faker');
 
 const prisma = new PrismaClient();
 
@@ -39,6 +39,7 @@ async function main() {
                 nome: faker.person.fullName(),
                 isadmin: faker.datatype.boolean(),
                 profilePicture: profilePictures[Math.floor(Math.random() * profilePictures.length)],
+                imageDefault: true,
             },
         });
         users.push(user);
