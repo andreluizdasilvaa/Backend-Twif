@@ -5,7 +5,6 @@ const validateController = asyncHandler(async (req, res) => {
         isAuthenticated: true,
         isAdmin: req.user.isadmin,
         user: {
-            id: req.user.id,
             nome: req.user.nome,
             usernick: req.user.usernick,
             profilePicture: req.user.profilePicture

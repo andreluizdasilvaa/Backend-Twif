@@ -26,7 +26,14 @@ const login = async (req, res) => {
         generate_token_user(user, req, res, () => {
             return res.status(200).json({ 
                 redirect: "/feed",
-                token: res.locals.token
+                token: res.locals.token,
+                isAuthenticated: true,
+                isAdmin: user.isadmin,
+                user: {
+                    nome: user.nome,
+                    usernick: user.usernick,
+                    profilePicture: user.profilePicture
+                }
              });
         });
     } catch (err) {
