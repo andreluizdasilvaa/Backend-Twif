@@ -45,6 +45,11 @@ model notification {
   isViewed      Boolean  @default(false)
   createdAt     DateTime @default(now())
 
+  user          user     @relation("UserNotifications", fields: [userId], references: [id])
+  triggeredBy   user     @relation("UserTriggeredNotifications", fields: [triggeredById], references: [id])
+  post          post?    @relation("PostNotifications", fields: [postId], references: [id])
+  postDeleted   postdeleted? @relation("PostDeletedNotifications", fields: [postDeletedId], references: [id])
+
   @@index([postDeletedId], map: "Notification_postDeletedId_fkey")
   @@index([postId], map: "Notification_postId_fkey")
   @@index([triggeredById], map: "Notification_triggeredById_fkey")
@@ -61,8 +66,12 @@ model post {
   comments  comment[]
   likes     like[]
 
+  // Relação inversa com notification
+  notifications notification[] @relation("PostNotifications")
+
   @@index([userId], map: "Post_userId_fkey")
 }
+
 
 
 model postdeleted {
@@ -72,8 +81,12 @@ model postdeleted {
   createdAt DateTime @default(now())
   userId    Int
 
+  // Relação inversa com notification
+  notifications notification[] @relation("PostDeletedNotifications")
+
   @@index([userId], map: "PostDeleted_userId_fkey")
 }
+
 
 model user {
   id             Int      @id @default(autoincrement())
@@ -88,6 +101,10 @@ model user {
   profilePicture String   @default("defaultphoto.png")
   imageDefault   Boolean  @default(true)
   createdAt      DateTime @default(now())
+
+  // Novas relações
+  notifications           notification[] @relation("UserNotifications")
+  triggeredNotifications  notification[] @relation("UserTriggeredNotifications")
 
   // Lados opostos das relações
   posts          post[]
