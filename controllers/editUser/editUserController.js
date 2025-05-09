@@ -6,24 +6,20 @@ const editUserController = asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { usernick, nome, nascimento, course, profilePicture, bio } = req.body;
 
-    if (!usernick || !nome || !nascimento || !course) {
-        throw createHttpError(400, 'Campos obrigatórios ausentes.');
-    }
+    // Cria um objeto de dados para atualização, onde os campos ausentes não são alterados
+    const updateData = {};
+
+    if (usernick) updateData.usernick = usernick;
+    if (nome) updateData.nome = nome;
+    if (nascimento) updateData.nascimento = new Date(nascimento).toISOString().split('T')[0];  // Formato ISO
+    if (course) updateData.course = course;
+    if (profilePicture) updateData.profilePicture = profilePicture;
+    if (bio) updateData.bio = bio;
 
     try {
-        // Modifique a parte de nascimento para:
-const nascimentoISO = nascimento ? new Date(nascimento).toISOString().split('T')[0] : null;
-
         const updatedUser = await prisma.user.update({
             where: { id: userId },
-            data: {
-                usernick,
-                nome,
-                nascimento: nascimentoISO, // Agora como string ISO
-                course,
-                profilePicture: profilePicture || null,
-                bio: bio || null
-            }
+            data: updateData, // Apenas os campos fornecidos serão atualizados
         });
 
         res.status(200).json({
@@ -33,12 +29,12 @@ const nascimentoISO = nascimento ? new Date(nascimento).toISOString().split('T')
         });
     } catch (error) {
         console.error('Erro ao atualizar usuário:', error);
-        
+
         // Verifica se é um erro de validação do Prisma
         if (error.message.includes('Invalid value provided')) {
             throw createHttpError(400, 'Formato de dados inválido');
         }
-        
+
         throw createHttpError(500, 'Erro ao atualizar perfil');
     }
 });
