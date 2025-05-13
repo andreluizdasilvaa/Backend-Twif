@@ -7,21 +7,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model like {
-  id     Int   @id @default(autoincrement())
-  userId Int
-  postId Int
+model user {
+  id             Int      @id @default(autoincrement())
+  email          String   @unique(map: "User_email_key") @db.VarChar(150)
+  senha          String   @db.VarChar(100)
+  usernick       String   @unique(map: "User_usernick_key") @db.VarChar(50)
+  nome           String   @db.VarChar(100)
+  isadmin        Boolean  @default(false)
+  profilePicture String   @default("defaultphoto.png") @db.VarChar(150)
+  createdAt      DateTime @default(now())
 
-  user   user  @relation(fields: [userId], references: [id])
-  post   post  @relation(fields: [postId], references: [id])
+  posts                 post[]
+  comments              comment[]
+  likes                 like[]
+  notifications         notification[] @relation("NotifiedUser")
+  triggeredNotifications notification[] @relation("TriggeringUser")
+}
 
-  @@unique([userId, postId], map: "Like_userId_postId_key")
-  @@index([postId], map: "like_postId_fkey")
+model post {
+  id        Int       @id @default(autoincrement())
+  content   String    @db.VarChar(500)
+  createdAt DateTime  @default(now())
+  userId    Int
+
+  user      user      @relation(fields: [userId], references: [id])
+  comments  comment[]
+  likes     like[]
 }
 
 model comment {
   id        Int      @id @default(autoincrement())
-  content   String
+  content   String   @db.VarChar(300)
   postId    Int
   userId    Int
   createdAt DateTime @default(now())
@@ -29,11 +45,17 @@ model comment {
 
   post      post     @relation(fields: [postId], references: [id])
   user      user     @relation(fields: [userId], references: [id])
-
-  @@index([postId], map: "Comment_PostId_FK")
-  @@index([userId], map: "Comment_userId_fkey")
 }
 
+model postdeleted {
+  id        Int      @id @default(autoincrement())
+  postId    Int      @unique(map: "PostDeleted_postId_key")
+  content   String   @db.VarChar(500)
+  createdAt DateTime @default(now())
+  userId    Int
+
+  @@index([userId], map: "PostDeleted_userId_fkey")
+}
 
 model notification {
   id            Int      @id @default(autoincrement())
@@ -41,73 +63,19 @@ model notification {
   triggeredById Int
   postId        Int?
   postDeletedId Int?
-  action        String
+  action        String   @db.VarChar(100)
   isViewed      Boolean  @default(false)
   createdAt     DateTime @default(now())
 
-  user          user     @relation("UserNotifications", fields: [userId], references: [id])
-  triggeredBy   user     @relation("UserTriggeredNotifications", fields: [triggeredById], references: [id])
-  post          post?    @relation("PostNotifications", fields: [postId], references: [id])
-  postDeleted   postdeleted? @relation("PostDeletedNotifications", fields: [postDeletedId], references: [id])
-
-  @@index([postDeletedId], map: "Notification_postDeletedId_fkey")
-  @@index([postId], map: "Notification_postId_fkey")
-  @@index([triggeredById], map: "Notification_triggeredById_fkey")
-  @@index([userId, isViewed], map: "Notification_userId_isViewed_idx")
+  user         user @relation("NotifiedUser", fields: [userId], references: [id])
+  triggeredBy  user @relation("TriggeringUser", fields: [triggeredById], references: [id])
 }
 
-model post {
-  id        Int       @id @default(autoincrement())
-  content   String
-  createdAt DateTime  @default(now())
-  userId    Int
+model like {
+  id     Int   @id @default(autoincrement())
+  userId Int
+  postId Int
 
-  user      user      @relation(fields: [userId], references: [id])
-  comments  comment[]
-  likes     like[]
-
-  // Relação inversa com notification
-  notifications notification[] @relation("PostNotifications")
-
-  @@index([userId], map: "Post_userId_fkey")
-}
-
-
-
-model postdeleted {
-  id        Int      @id @default(autoincrement())
-  postId    Int      @unique(map: "PostDeleted_postId_key")
-  content   String
-  createdAt DateTime @default(now())
-  userId    Int
-
-  // Relação inversa com notification
-  notifications notification[] @relation("PostDeletedNotifications")
-
-  @@index([userId], map: "PostDeleted_userId_fkey")
-}
-
-
-model user {
-  id             Int      @id @default(autoincrement())
-  email          String   @unique(map: "User_email_key")
-  senha          String
-  usernick       String   @unique(map: "User_usernick_key")
-  nome           String
-  nascimento     String?
-  course         String?
-  bio            String?
-  isadmin        Boolean  @default(false)
-  profilePicture String   @default("defaultphoto.png")
-  imageDefault   Boolean  @default(true)
-  createdAt      DateTime @default(now())
-
-  // Novas relações
-  notifications           notification[] @relation("UserNotifications")
-  triggeredNotifications  notification[] @relation("UserTriggeredNotifications")
-
-  // Lados opostos das relações
-  posts          post[]
-  comments       comment[]
-  likes          like[]
+  user   user  @relation(fields: [userId], references: [id])
+  post   post  @relation(fields: [postId], references: [id])
 }

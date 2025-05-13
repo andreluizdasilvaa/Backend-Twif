@@ -1,45 +1,60 @@
+const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
-const { generate_token_user } = require('../../middlewares/index');
-const prisma = require('../../models/prisma');
+const jwt = require('jsonwebtoken');
 
-// Rota de processamento do login
-const login = async (req, res) => {
+const prisma = new PrismaClient();
+
+module.exports = async (req, res, next) => {
+  try {
     const { email, senha } = req.body;
-    try {
-        if (!email || !senha) {
-            return res.status(400).json({ Erro: "Email ou senha não enviados" });
-        }
 
-        const user = await prisma.user.findUnique({
-            where: { email }
-        });
+    console.log("🟡 Dados recebidos no login:", { email, senha });
 
-        if (!user) {
-            return res.status(401).json({ Erro: "Credenciais inválidas" });
-        }
+    // Verifica se o usuário existe
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
 
-        const isPasswordValid = await bcrypt.compare(senha, user.senha);
-        if (!isPasswordValid) {
-            return res.status(401).json({ Erro: "Credenciais inválidas" });
-        }
-
-        generate_token_user(user, req, res, () => {
-            return res.status(200).json({ 
-                redirect: "/feed",
-                token: res.locals.token,
-                isAuthenticated: true,
-                isAdmin: user.isadmin,
-                user: {
-                    nome: user.nome,
-                    usernick: user.usernick,
-                    profilePicture: user.profilePicture
-                }
-             });
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ Erro: "Erro interno ao fazer login" });
+    if (!user) {
+      return res.status(401).json({ message: 'Usuário não encontrado' });
     }
-};
 
-module.exports = login;
+    // Verifica a senha
+    const isMatch = await bcrypt.compare(senha, user.senha);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Senha incorreta' });
+    }
+
+    // Gera token JWT
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        isadmin: user.isadmin
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    console.log("✅ Login bem-sucedido! Token gerado.");
+
+    // Retorna o token e dados básicos
+    res.status(200).json({
+      message: 'Login realizado com sucesso',
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        nome: user.nome,
+        usernick: user.usernick,
+        isadmin: user.isadmin,
+        profilePicture: user.profilePicture
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ Erro no login:", error);
+    next(error);
+  }
+};
