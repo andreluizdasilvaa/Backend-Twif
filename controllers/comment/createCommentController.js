@@ -1,4 +1,4 @@
-const createCommentModel = require('../../models/comment/createCommentModel')
+const createCommentModel = require('../../models/comment/createCommentModel');
 const createHttpError = require('http-errors');
 const asyncHandler = require('../../utils/asyncHandler');
 
@@ -8,7 +8,7 @@ const createComment = asyncHandler(async (req, res) => {
     const userId = req.user.id;
 
     if (!content || content.trim() === '') {
-        createHttpError(400, 'O comentário não pode estar vazio');
+        throw createHttpError(400, 'O comentário não pode estar vazio');
     }
 
     const comment = await createCommentModel(postId, content, userId);

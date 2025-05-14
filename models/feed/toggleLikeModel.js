@@ -11,6 +11,18 @@ const toggleLikeModel = async (postId, userId) => {
             },
         },
     });
+    
+    // Obtém o autor do post
+    const post = await prisma.post.findUnique({
+        where: { id: parseInt(postId) },
+        select: { userId: true },
+    });
+    
+    if (!post) {
+        throw createHttpError(404, 'Post não encontrado');
+    }
+    
+    const authorId = post.userId;
 
     if (existingLike) {
         // Se já curtiu, remove a curtida (descurtir)
@@ -23,17 +35,14 @@ const toggleLikeModel = async (postId, userId) => {
         // Remove a notificação correspondente
         await prisma.notification.deleteMany({
             where: {
-                userId: (await prisma.post.findUnique({
-                    where: { id: parseInt(postId) },
-                    select: { userId: true },
-                })).userId,
+                userId: authorId,
                 triggeredById: userId,
                 postId: parseInt(postId),
                 action: 'like',
             },
         });
 
-        return 'unliked'; // Retorna a ação realizada
+        return 'unliked'; 
     } else {
         // Caso contrário, adiciona a curtida
         await prisma.like.create({
@@ -43,20 +52,19 @@ const toggleLikeModel = async (postId, userId) => {
             },
         });
 
-        // Adiciona uma notificação correspondente
-        await prisma.notification.create({
-            data: {
-                userId: (await prisma.post.findUnique({
-                    where: { id: parseInt(postId) },
-                    select: { userId: true },
-                })).userId,
-                triggeredById: userId,
-                postId: parseInt(postId),
-                action: 'like',
-            },
-        });
+        // Adiciona uma notificação apenas se o usuário curtindo não for o autor do post
+        if (authorId !== userId) {
+            await prisma.notification.create({
+                data: {
+                    userId: authorId,
+                    triggeredById: userId,
+                    postId: parseInt(postId),
+                    action: 'like',
+                },
+            });
+        }
 
-        return 'liked'; // Retorna a ação realizada
+        return 'liked'; 
     }
 };
 

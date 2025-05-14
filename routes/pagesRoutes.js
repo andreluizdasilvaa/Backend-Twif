@@ -1,21 +1,15 @@
 const express = require('express');
-const pagesController = require('../controllers/pagesController');
-const { auth_user, auth_admin, } = require('../middlewares/index');
-
 const router = express.Router();
+const { auth_user } = require('../middlewares');
+const { validate } = require('../middlewares/validate');
+const { userSchema } = require('../schemas/userSchemas');
 
-router.get('/', pagesController.homeLogin);
-router.get('/register', pagesController.register);
-router.get('/suporte', pagesController.support);
-router.get('/sobrenos', pagesController.about_us);
+const userMe = require('../controllers/perfil/userMeController');
+const userByNick = require('../controllers/perfil/userByNickController');
+const replaceAvatar = require('../controllers/perfil/replaceAvatarController');
 
-router.get('/feed', auth_user, pagesController.feed);
-router.get('/perfil/:usernick', auth_user, pagesController.userProfile);
-router.get('/comments', auth_user, pagesController.comments);
-router.get('/relatorios', auth_user, auth_admin, pagesController.relatorios);
-
-router.get('/user404', pagesController.userPage404);
-router.get('/notaccess', pagesController.semAcesso);
-router.get('*', pagesController.notfound);
+router.get('/me', auth_user, userMe);
+router.get('/perfil/:usernick', auth_user, userByNick);
+router.patch('/troca/avatar/:avatar', auth_user, validate(userSchema.pick({ profilePicture: true })), replaceAvatar);
 
 module.exports = router;

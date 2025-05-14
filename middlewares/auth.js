@@ -4,7 +4,16 @@ const jwt = require('jsonwebtoken');
 const prisma = new PrismaClient();
 
 async function auth_user(req, res, next) {
-    const token = req.cookies['your-session'];
+    let token;
+
+    // Primeiro tenta pegar do Authorization Header
+    const authHeader = req.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.split(' ')[1]; // pega só o token
+    } else {
+        // Se não tiver no header, tenta pegar do cookie
+        token = req.cookies['your-session'];
+    }
 
     if (!token) {
         console.log("Token não encontrado, acesso negado."); // Log para verificar se o token está ausente
@@ -36,7 +45,7 @@ async function auth_user(req, res, next) {
                 });
             }
 
-            req.user = user; // Passa o objeto completo do usuário para a requisição
+            req.user = user; // Continua igual
             next();
         } catch (dbError) {
             console.error('Erro ao acessar o banco de dados:', dbError); // Log para erros de banco de dados

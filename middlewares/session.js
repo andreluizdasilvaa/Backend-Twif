@@ -11,6 +11,8 @@ function generate_token_user(user, req, res, next) {
         sameSite: "None",
         secure: true
     });
+    
+    res.locals.token = token;
     next();
 }
 
