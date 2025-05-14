@@ -9,10 +9,6 @@ const commentRoutes = require('./routes/commentRoutes')
 const authRoutes = require('./routes/authRoutes');
 const perfilRoutes = require('./routes/perfilRoutes');
 
-const relatorioRoutes = require('./routes/relatorioRoutes')
-const editUserRoutes = require('./routes/editUserRoutes');
-
-
 // Importando middlewares
 const logger = require('./middlewares/logger');
 const errorHandler = require('./utils/errorHandler');
@@ -43,8 +39,6 @@ app.use('/auth', authRoutes);
 app.use('/user', perfilRoutes);
 app.use('/feed', feedRoutes);
 app.use('/comments', commentRoutes);
-app.use('/editar', editUserRoutes);
-
 
 // Tratamento de erros (middleware)
 app.use(errorHandler);
