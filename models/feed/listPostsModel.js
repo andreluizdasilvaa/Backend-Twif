@@ -1,51 +1,47 @@
 const prisma = require('../../models/prisma');
 
-const listPostModel = async (userId) => {
-    const posts = await prisma.post.findMany({
-        include: {
-            user: {
-                select: {
-                    nome: true,
-                    profilePicture: true,
-                    usernick: true,
+const listPostModel = async (userId, page = 1, limit = 5) => {
+    const skip = (page - 1) * limit;
+    
+    const [posts, totalPosts] = await Promise.all([
+        prisma.post.findMany({
+            skip,
+            take: limit,
+            include: {
+                user: {
+                    select: {
+                        nome: true,
+                        profilePicture: true,
+                        usernick: true,
+                    },
                 },
-            },
-            comments: true,
-            likes: {
-                select: {
-                    userId: true,
-                },
-            },
-        },
-        orderBy: [
-            {
+                comments: true,
                 likes: {
-                    _count: 'desc',
+                    select: {
+                        userId: true,
+                    },
                 },
             },
-            {
-                createdAt: 'desc', // Ordem decrescente pela data de criação
-            },
-        ],
+            orderBy: [
+                {
+                    likes: {
+                        _count: 'desc',
+                    },
+                },
+                {
+                    createdAt: 'desc',
+                },
+            ],
+        }),
+        prisma.post.count()
+    ]);
+
+    // Adiciona likedByCurrentUser
+    posts.forEach(post => {
+        post.likedByCurrentUser = post.likes.some(like => like.userId === userId);
     });
 
-    // Adiciona o campo 'likedByCurrentUser' em cada post usando um loop for
-    for (let i = 0; i < posts.length; i++) {
-        const post = posts[i];
-        let likedByCurrentUser = false;
-
-        // Itera sobre cada curtida do post para verificar se o usuário curtiu
-        for (let j = 0; j < post.likes.length; j++) {
-            if (post.likes[j].userId === userId) {
-                likedByCurrentUser = true;
-                break; // Interrompe a busca após encontrar a curtida do usuário
-            }
-        }
-
-        post.likedByCurrentUser = likedByCurrentUser;
-    }
-
-    return posts;
+    return { posts, totalPosts };
 }
 
 module.exports = listPostModel;
