@@ -7,35 +7,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
+model User {
   id             Int      @id @default(autoincrement())
-  email          String   @unique(map: "User_email_key") @db.VarChar(150)
-  senha          String   @db.VarChar(100)
-  usernick       String   @unique(map: "User_usernick_key") @db.VarChar(50)
-  nome           String   @db.VarChar(100)
+  email          String   @unique
+  senha          String
+  usernick       String   @unique
+  nome           String
+  nascimento     String   // ou Date
+  course         String
+  bio            String?  // <-- ADICIONE ESTA LINHA
   isadmin        Boolean  @default(false)
-  profilePicture String   @default("defaultphoto.png") @db.VarChar(150)
+  profilePicture String?
   createdAt      DateTime @default(now())
 
-  posts                 post[]
-  comments              comment[]
-  likes                 like[]
-  notifications         notification[] @relation("NotifiedUser")
-  triggeredNotifications notification[] @relation("TriggeringUser")
+  posts                 Post[]
+  comments              Comment[]
+  likes                 Like[]
+  notifications         Notification[]           @relation("NotifiedUser")
+  triggeredNotifications Notification[]          @relation("TriggeringUser")
 }
 
-model post {
+
+model Post {
   id        Int       @id @default(autoincrement())
   content   String    @db.VarChar(500)
   createdAt DateTime  @default(now())
   userId    Int
 
-  user      user      @relation(fields: [userId], references: [id])
-  comments  comment[]
-  likes     like[]
+  user      User      @relation(fields: [userId], references: [id])
+  comments  Comment[]
+  likes     Like[]
 }
 
-model comment {
+model Comment {
   id        Int      @id @default(autoincrement())
   content   String   @db.VarChar(300)
   postId    Int
@@ -43,11 +47,11 @@ model comment {
   createdAt DateTime @default(now())
   updatedAt DateTime
 
-  post      post     @relation(fields: [postId], references: [id])
-  user      user     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
-model postdeleted {
+model PostDeleted {
   id        Int      @id @default(autoincrement())
   postId    Int      @unique(map: "PostDeleted_postId_key")
   content   String   @db.VarChar(500)
@@ -57,7 +61,7 @@ model postdeleted {
   @@index([userId], map: "PostDeleted_userId_fkey")
 }
 
-model notification {
+model Notification {
   id            Int      @id @default(autoincrement())
   userId        Int
   triggeredById Int
@@ -67,15 +71,15 @@ model notification {
   isViewed      Boolean  @default(false)
   createdAt     DateTime @default(now())
 
-  user         user @relation("NotifiedUser", fields: [userId], references: [id])
-  triggeredBy  user @relation("TriggeringUser", fields: [triggeredById], references: [id])
+  user         User @relation("NotifiedUser", fields: [userId], references: [id])
+  triggeredBy  User @relation("TriggeringUser", fields: [triggeredById], references: [id])
 }
 
-model like {
+model Like {
   id     Int   @id @default(autoincrement())
   userId Int
   postId Int
 
-  user   user  @relation(fields: [userId], references: [id])
-  post   post  @relation(fields: [postId], references: [id])
+  user   User  @relation(fields: [userId], references: [id])
+  post   Post  @relation(fields: [postId], references: [id])
 }

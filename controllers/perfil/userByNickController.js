@@ -1,14 +1,50 @@
-const userByNickModel = require('../../models/perfil/userByNickModel')
-const asyncHandler = require('../../utils/asyncHandler');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-const userByNick = asyncHandler(async (req, res) => {
+async function userByNick(req, res, next) {
+  try {
     const { usernick } = req.params;
-    const userId = req.user.id; // ID do usuário autenticado
-    const isAdmin = req.user.isadmin;
+    const currentUser = req.user;
 
-    const user = await userByNickModel(usernick, userId, isAdmin);
+    const isCurrentUser = currentUser.usernick === usernick;
 
-    res.status(200).json(user);
-});
+    const user = await prisma.user.findUnique({
+      where: {
+        usernick
+      },
+      select: {
+        nome: true,
+        profilePicture: true,
+        usernick: true,
+        isadmin: true,
+        nascimento: true,
+        course: true, // <-- corrigido
+        bio: true,
+        posts: {
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            comments: true,
+            likes: {
+              select: {
+                userId: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+
+    res.json({ user, isCurrentUser });
+  } catch (error) {
+    console.error('Erro ao buscar perfil:', error);
+    next(error);
+  }
+}
 
 module.exports = userByNick;

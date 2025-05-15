@@ -2,51 +2,52 @@ const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
 const cors = require('cors');
-
-// Importando as rotas
-const feedRoutes = require('./routes/feedRoutes');
-const commentRoutes = require('./routes/commentRoutes')
-const authRoutes = require('./routes/authRoutes');
-const perfilRoutes = require('./routes/perfilRoutes');
-
-const relatorioRoutes = require('./routes/relatorioRoutes')
-const editUserRoutes = require('./routes/editUserRoutes');
-
-
-// Importando middlewares
-const logger = require('./middlewares/logger');
-const errorHandler = require('./utils/errorHandler');
 const cookieParser = require('cookie-parser');
 
-dotenv.config();  // Carrega as variáveis de ambiente
-const app = express();  // Criação do aplicativo Express
+// Carrega variáveis de ambiente
+dotenv.config();
 
-// Configuração de CORS (Cross-Origin Resource Sharing)
+const app = express();
+
+// Configuração do CORS
 const corsOptions = {
-  origin: process.env.CLIENT_ORIGIN_URL, // URL do cliente permitida
+  origin: process.env.CLIENT_ORIGIN_URL || "http://localhost:3000",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  credentials: true
+  credentials: true,
 };
 
-// Usando o middleware CORS
-app.use(cors(corsOptions)); 
-app.use(logger);  // Middleware de log
-app.use(express.json());  // Middleware para parsear JSON
-app.use(express.urlencoded({ extended: true }));  // Middleware para lidar com dados URL-encoded
-app.use(cookieParser());  // Middleware para manipulação de cookies
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// Configuração do diretório estático (para arquivos como imagens, CSS, etc.)
+// Diretório público (se tiver)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configuração das rotas
+// Rotas
+const feedRoutes = require('./routes/feedRoutes');
+const commentRoutes = require('./routes/commentRoutes');
+const authRoutes = require('./routes/authRoutes');
+const perfilRoutes = require('./routes/perfilRoutes');
+const relatorioRoutes = require('./routes/relatorioRoutes');
+const imageRoutes = require('./routes/imageRoutes');
+const fixProblemRoutes = require('./routes/fixProblemRoutes');
+const editUserRoutes = require('./routes/editUserRoutes');
+const postRoutes = require('./routes/postRoutes'); // rota para criação de posts
+
+// Usando as rotas
 app.use('/auth', authRoutes);
 app.use('/user', perfilRoutes);
 app.use('/feed', feedRoutes);
 app.use('/comments', commentRoutes);
 app.use('/editar', editUserRoutes);
+app.use('/', postRoutes);
 
+// Tratamento genérico de erros
+app.use((err, req, res, next) => {
+  console.error(err);
+  const status = err.status || 500;
+  res.status(status).json({ message: err.message || 'Erro desconhecido' });
+});
 
-// Tratamento de erros (middleware)
-app.use(errorHandler);
-
-module.exports = app;  // Exporta o app para ser usado no servidor
+module.exports = app;

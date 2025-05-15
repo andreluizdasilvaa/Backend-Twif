@@ -1,6 +1,13 @@
-import { z } from 'zod';
+// schemas/postSchemas.js
+const { z } = require('zod');
 
-export const postSchema = z.object({
-  content: z.string().min(1).max(500),
-  userId: z.number(),
+const createPostSchema = z.object({
+  content: z.string().min(1).max(191),
+  userId: z.number().int()
 });
+
+const deletePostSchema = z.object({
+  postId: z.number().int()
+});
+
+module.exports = { createPostSchema, deletePostSchema };

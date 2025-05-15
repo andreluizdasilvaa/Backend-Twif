@@ -1,28 +1,32 @@
-const prisma = require('../prisma');
-const createHttpError = require('http-errors');
+// models/comment/deleteCommentModel.js
+
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 const deleteCommentModel = async (commentId, userId, isAdmin) => {
-     // Verifica se o comentário existe
-     const comment = await prisma.comment.findUnique({ where: { id: parseInt(commentId) } });
+  // Verifica se o comentário existe
+  const comment = await prisma.comment.findUnique({
+    where: { id: commentId },
+  });
 
-     if (!comment) { createHttpError(404, 'Comentário não encontrado'); }
+  if (!comment) {
+    throw new Error('Comentário não encontrado');
+  }
 
-     // Verifica se o usuário tem permissão para excluir o comentário (mesmo usuário ou admin)
-     if (comment.userId !== userId && !isAdmin) {
-        createHttpError(403, 'Você não tem permissão para excluir este comentário');
-     }
+  // Verifica se o usuário é o dono do comentário ou administrador
+  if (comment.userId !== userId && !isAdmin) {
+    throw new Error('Você não tem permissão para deletar este comentário');
+  }
 
-     // Exclui a notificação associada ao comentário
-     await prisma.notification.deleteMany({
-         where: {
-             postId: comment.postId,  // Post relacionado ao comentário
-             triggeredById: comment.userId,  // Usuário que fez o comentário
-             action: 'comment'  // Tipo de ação (comentário)
-         }
-     });
+  // Deleta o comentário
+  await prisma.comment.delete({
+    where: { id: commentId },
+  });
 
-     // Exclui o comentário do banco de dados
-     await prisma.comment.delete({ where: { id: parseInt(commentId) } });
-}
+  // Deletar a notificação relacionada ao comentário (se necessário)
+  // Exemplo: await prisma.notification.deleteMany({ where: { commentId: commentId } });
+
+  return;
+};
 
 module.exports = deleteCommentModel;

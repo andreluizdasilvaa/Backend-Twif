@@ -1,66 +1,83 @@
+// controllers/auth/registerController.js
 const bcrypt = require('bcrypt');
-const { generate_token_user } = require('../../middlewares/index');
-const prisma = require('../../models/prisma');
+const jwt = require('jsonwebtoken');
+const { PrismaClient } = require('@prisma/client');
+const { registerSchema } = require('../../schemas/userSchemas');
 
-// Rota de processamento do cadastro
+const prisma = new PrismaClient();
+
 const register = async (req, res) => {
-    const { email, senha, usernick, nome, profilePicture, nascimento, curso } = req.body;
+  try {
+    // Validação com Zod
+    const data = registerSchema.parse(req.body);
 
-    let isadmin = false;
+    // Verifica se o usuário ou email já existem
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: data.email },
+          { usernick: data.usernick }
+        ]
+      }
+    });
 
-    // Validação do domínio do email
-    if (/^[a-zA-Z0-9._%+-]+@aluno\.ifsp\.edu\.br$/.test(email)) {
-        isadmin = false;
-    } else if (/^[a-zA-Z0-9._%+-]+@ifsp\.edu\.br$/.test(email)) {
-        isadmin = true;
-    } else {
-        return res.status(400).json({ msg: 'Email inválido. Use um e-mail do domínio ifsp.edu.br' });
+    if (existingUser) {
+      return res.status(409).json({ msg: 'Email ou usernick já cadastrados.' });
     }
 
-    try {
-        const existingMail = await prisma.user.findUnique({ where: { email } });
-        const existingUser = await prisma.user.findUnique({ where: { usernick } });
+    // Verifica se o e-mail é institucional do IFSP
+    const alunoRegex = /^[a-zA-Z0-9._%+-]+@aluno\.ifsp\.edu\.br$/;
+    const adminRegex = /^[a-zA-Z0-9._%+-]+@ifsp\.edu\.br$/;
 
-        if (existingMail || existingUser) {
-            return res.status(400).json({ msg: 'Email ou @user já cadastrados!' });
-        }
-
-        const senhaHash = await bcrypt.hash(senha, parseInt(process.env.SALT_ROUNDS) || 8);
-
-        const user = await prisma.user.create({
-            data: {
-                nome,
-                email,
-                usernick,
-                senha: senhaHash,
-                profilePicture,
-                isadmin,
-                nascimento,
-                course: curso,
-            }
-        });
-
-        // Gera token e envia junto com os dados do usuário
-        generate_token_user(user, req, res, (token) => {
-            return res.status(201).json({
-                message: 'Usuário cadastrado com sucesso!',
-                token,
-                user: {
-                    id: user.id,
-                    nome: user.nome,
-                    email: user.email,
-                    usernick: user.usernick,
-                    profilePicture: user.profilePicture,
-                    isadmin: user.isadmin,
-                    nascimento: user.nascimento,
-                    curso: user.course
-                }
-            });
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ msg: 'Erro interno ao cadastrar usuário, entre em contato com o suporte' });
+    if (!alunoRegex.test(data.email) && !adminRegex.test(data.email)) {
+      return res.status(400).json({ msg: 'O e-mail deve ser institucional (@aluno.ifsp.edu.br ou @ifsp.edu.br).' });
     }
+
+    // Define se o usuário é administrador com base no domínio
+    const isadmin = adminRegex.test(data.email) && !data.email.includes('aluno');
+
+    // Criptografa a senha
+    const senhaHash = await bcrypt.hash(data.senha, 10);
+
+    // Criação do usuário no banco
+    const user = await prisma.user.create({
+      data: {
+        ...data,
+        senha: senhaHash,
+        isadmin
+      }
+    });
+
+    // Geração do token JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email, isadmin: user.isadmin },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // Retorno de sucesso
+    return res.status(201).json({
+      message: 'Usuário cadastrado com sucesso!',
+      token,
+      user: {
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        usernick: user.usernick,
+        profilePicture: user.profilePicture,
+        isadmin: user.isadmin,
+        nascimento: user.nascimento,
+        curso: user.curso
+      }
+    });
+  } catch (error) {
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ msg: 'Dados inválidos.', errors: error.errors });
+    }
+
+    console.error('Erro no registro de usuário:', error);
+    return res.status(500).json({ msg: 'Erro interno ao cadastrar usuário.', error: error.message });
+  }
 };
 
 module.exports = register;

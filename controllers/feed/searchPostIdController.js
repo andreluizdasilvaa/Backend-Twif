@@ -1,17 +1,26 @@
-const searchPostByIdModel = require('../../models/feed/searchPostByIdModel');
-const asyncHandler = require('../../utils/asyncHandler');
-const createHttpError = require('http-errors');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-const searchPostId = asyncHandler(async (req, res) => {
-    const { postId } = req.params;
+async function searchPostIdController(req, res) {
+  const { postId } = req.params;
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id: parseInt(postId) },
+      include: {
+        user: true,
+        comments: true,
+        likes: true
+      }
+    });
 
-    if (!postId || isNaN(postId)) {
-        throw createHttpError(400, "Invalid postId");
+    if (!post) {
+      return res.status(404).json({ error: 'Post não encontrado.' });
     }
+    res.json(post);
+  } catch (error) {
+    console.error('Erro ao buscar post:', error);
+    res.status(500).json({ error: 'Erro interno ao buscar post.' });
+  }
+}
 
-    const post = await searchPostByIdModel(postId);
-
-    res.status(200).json(post);
-});
-
-module.exports = searchPostId;
+module.exports = searchPostIdController;

@@ -1,4 +1,4 @@
-const { remove_session } = require('../../middlewares/index');
+const { remove_session } = require('../../middlewares/index.js');
 
 const removeSession = (req, res) => {
     try {

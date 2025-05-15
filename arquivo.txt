@@ -1,0 +1,246 @@
+Da pra fazer tudo isso: ---
+
+1. Registro de Usuário
+
+
+
+POST /auth/register
+
+Status Esperado: 201 Created
+
+Body:
+
+{ "email": "teste@email.com", "senha": "12345678", "usernick": "testuser", "nome": "Usuário Teste" }
+
+Erros:
+
+400 Bad Request (validação Zod)
+
+409 Conflict (email ou usernick já usados)
+
+
+---
+
+2. Login
+
+
+
+POST /auth/login
+
+Status Esperado: 200 OK
+
+Body:
+
+{ "email": "teste@email.com", "senha": "12345678" }
+
+Resposta: Um token JWT.
+
+Erros:
+
+400 Bad Request
+
+401 Unauthorized (credenciais inválidas)
+
+
+---
+
+3. Logout
+
+
+
+DELETE /auth/logout
+
+Status Esperado: 200 OK
+
+Headers: Authorization: Bearer <SEU_TOKEN_JWT>
+
+
+---
+
+4. Criar Post
+
+
+
+POST /create/post
+
+Status Esperado: 201 Created
+
+Headers: Authorization: Bearer <SEU_TOKEN_JWT>
+
+Body:
+
+{ "content": "Texto do post", "userId": 1 }
+
+Erros:
+
+400 Bad Request (conteúdo inválido)
+
+401 Unauthorized (sem token válido)
+
+
+---
+
+5. Listar Posts
+
+
+
+GET /posts
+
+Status Esperado: 200 OK
+
+Headers: Authorization: Bearer <SEU_TOKEN_JWT>
+
+
+---
+
+6. Buscar Post por ID
+
+
+
+GET /posts/:postId
+
+Status Esperado: 200 OK
+
+Erros:
+
+404 Not Found (Post não encontrado)
+
+
+---
+
+7. Deletar Post
+
+
+
+DELETE /delete/post
+
+Status Esperado: 200 OK
+
+Headers: Authorization: Bearer <SEU_TOKEN_JWT>
+
+Body:
+
+{ "postId": 1 }
+
+Erros:
+
+401 Unauthorized (sem token válido)
+
+
+---
+
+8. Criar Comentário
+
+
+
+POST /posts/:postId/comments
+
+Status Esperado: 201 Created
+
+Headers: Authorization: Bearer <SEU_TOKEN_JWT>
+
+Body:
+
+{ "content": "Comentário aqui", "userId": 1, "postId": 1 }
+
+
+---
+
+9. Listar Comentários
+
+
+
+GET /posts/:postId/comments
+
+Status Esperado: 200 OK
+
+Headers: Authorization: Bearer <SEU_TOKEN_JWT>
+
+
+---
+
+10. Deletar Comentário
+
+
+
+DELETE /feed/posts/:postId/comments/:commentId
+
+Status Esperado: 200 OK
+
+Headers: Authorization: Bearer <SEU_TOKEN_JWT>
+
+
+---
+
+11. Curtir ou Descurtir Post
+
+
+
+POST /posts/:postId/like
+
+Status Esperado: 200 OK
+
+Headers: Authorization: Bearer <SEU_TOKEN_JWT>
+
+Body:
+
+{ "userId": 1, "postId": 1 }
+
+
+---
+
+12. Ver Meu Perfil
+
+
+
+GET /me
+
+Status Esperado: 200 OK
+
+Headers: Authorization: Bearer <SEU_TOKEN_JWT>
+
+
+---
+
+13. Ver Perfil por Nick
+
+
+
+GET /perfil/:usernick
+
+Status Esperado: 200 OK
+
+Headers: Authorization: Bearer <SEU_TOKEN_JWT>
+
+
+---
+
+14. Trocar Avatar
+
+
+
+PATCH /troca/avatar/:avatar
+
+Status Esperado: 200 OK
+
+Headers: Authorization: Bearer <SEU_TOKEN_JWT>
+
+Body:
+
+{ "profilePicture": "https://exemplo.com/avatar.jpg" }
+
+
+---
+
+Status dos Erros Comuns
+
+400 Bad Request: Erro de validação nos dados enviados.
+
+401 Unauthorized: O token JWT não foi fornecido ou é inválido.
+
+404 Not Found: O recurso solicitado não foi encontrado.
+
+409 Conflict: Um recurso já existe (ex.: email ou usernick duplicado).
+
+500 Internal Server Error: Erro inesperado no servidor.
+

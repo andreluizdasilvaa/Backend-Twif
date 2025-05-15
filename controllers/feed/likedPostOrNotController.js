@@ -1,17 +1,45 @@
-const toggleLikeModel = require('../../models/feed/toggleLikeModel')
-const asyncHandler = require('../../utils/asyncHandler');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-const likedPostOrNot = asyncHandler(async (req, res) => {
-    const { postId } = req.params;
-    const userId = req.user.id;
+async function likedPostOrNotController(req, res) {
+  const { postId } = req.params;
+  const userId = req.user.id;
 
-    // Chama o modelo e obtém a resposta
-    const action = await toggleLikeModel(postId, userId);
+  try {
+    // Verifica se o post existe
+    const post = await prisma.post.findUnique({ where: { id: parseInt(postId) } });
+    if (!post) return res.status(404).json({ error: 'Post não encontrado.' });
 
-    // Envia a resposta com base na ação realizada
-    return res.status(200).json({
-        message: action === 'liked' ? 'Post curtido com sucesso' : 'Curtida removida com sucesso',
+    // Verifica se o usuário já curtiu o post
+    const like = await prisma.like.findUnique({
+      where: {
+        userId_postId: {
+          userId,
+          postId: parseInt(postId),
+        }
+      }
     });
-});
 
-module.exports = likedPostOrNot;
+    if (like) {
+      // Se já curtiu, remove o like (descurtir)
+      await prisma.like.delete({
+        where: { id: like.id }
+      });
+      return res.json({ message: 'Post descurtido.' });
+    } else {
+      // Se não curtiu, cria o like
+      await prisma.like.create({
+        data: {
+          userId,
+          postId: parseInt(postId),
+        }
+      });
+      return res.json({ message: 'Post curtido.' });
+    }
+  } catch (error) {
+    console.error('Erro ao curtir/descurtir post:', error);
+    res.status(500).json({ error: 'Erro interno ao curtir/descurtir post.' });
+  }
+}
+
+module.exports = likedPostOrNotController;

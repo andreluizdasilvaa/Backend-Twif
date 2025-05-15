@@ -1,21 +1,26 @@
-const createPostModel = require('../../models/feed/createPostModel');
-const asyncHandler = require('../../utils/asyncHandler');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-const createPost = asyncHandler(async (req, res) => {
-    const { conteudo } = req.body;
-    const userId = req.user.id;
+async function createPostController(req, res) {
+  const { content } = req.body;
 
-    if (!conteudo || conteudo.trim() === '') {
-        throw createHttpError(400, 'O conteúdo do post não pode estar vazio');
-    }
+  if (!content || content.trim() === '') {
+    return res.status(400).json({ error: 'Conteúdo do post não pode ser vazio.' });
+  }
 
-    if (conteudo.length > 191) {
-        throw createHttpError(400, 'O conteúdo do post não pode exceder 191 caracteres');
-    }
+  try {
+    const newPost = await prisma.post.create({
+      data: {
+        content,
+        userId: req.user.id
+      }
+    });
 
-    await createPostModel(conteudo, userId);
+    res.status(201).json(newPost);
+  } catch (error) {
+    console.error('Erro ao criar post:', error);
+    res.status(500).json({ error: 'Erro interno ao criar post.' });
+  }
+}
 
-    res.status(201).json({msg: "Post criado com sucesso!"});
-});
-
-module.exports = createPost;
+module.exports = createPostController;

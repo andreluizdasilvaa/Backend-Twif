@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { auth_user } = require('../middlewares/index');
+const { auth_user } = require('../middlewares/index.js');
 
 const userMe = require('../controllers/perfil/userMeController');
 const userByNick = require('../controllers/perfil/userByNickController');

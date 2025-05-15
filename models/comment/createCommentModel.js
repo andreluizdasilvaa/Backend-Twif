@@ -1,5 +1,9 @@
-const prisma = require('../prisma');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 const createHttpError = require('http-errors');
+const createCommentController = require('../controllers/comment/createCommentController');
+
+
 
 async function createCommentModel(postId, content, userId) {
     const comment = await prisma.comment.create({

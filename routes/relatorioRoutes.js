@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { auth_user, auth_admin } = require('../middlewares/index');
+const { auth_user, auth_admin } = require('../middlewares/index.js');
 
 const countComment = require('../controllers/relatorio/countCommentController');
 const countUser = require('../controllers/relatorio/countUserController');

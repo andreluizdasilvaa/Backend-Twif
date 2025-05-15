@@ -1,0 +1,147 @@
+{
+  "message": "Usuário cadastrado com sucesso!",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXN0ZUBlbWFpbC5jb20iLCJpc2FkbWluIjpmYWxzZSwiaWF0IjoxNzQ3MzMyOTYzLCJleHAiOjE3NDc5Mzc3NjN9.uOanI5JT6tkK6Auk0jF1UqrCJ6dcDOvKBY4ANM_hEbg",
+  "user": {
+    "id": 1,
+    "nome": "Usuário Teste",
+    "email": "teste@email.com",
+    "usernick": "testuser",
+    "profilePicture": null,
+    "isadmin": false,
+    "nascimento": "2000-01-01",
+    "curso": "Informática"
+  }
+}
+
+
+{
+  "message": "Login realizado com sucesso!",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0NzMzMzQ5NywiZXhwIjoxNzQ3MzM3MDk3fQ.pmjSgtr_ELdv0Pt8syWOlx7zGNZRfKDydgWx379AgjU",
+  "user": {
+    "id": 2,
+    "nome": "Usuário Teste",
+    "email": "b.geovana@aluno.ifsp.edu.br",
+    "usernick": "geuser",
+    "profilePicture": null,
+    "isadmin": false
+  }
+}
+
+{
+  "message": "Usuário cadastrado com sucesso!",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwiZW1haWwiOiJtb25pY2FAYWx1bm8uaWZzcC5lZHUuYnIiLCJpc2FkbWluIjpmYWxzZSwiaWF0IjoxNzQ3MzM1OTAzLCJleHAiOjE3NDc5NDA3MDN9.drsTvmpWuaw_Xxz_e5_TCzG8s7_OMJHNq20o9yN-2VA",
+  "user": {
+    "id": 5,
+    "nome": "monica",
+    "email": "monica@aluno.ifsp.edu.br",
+    "usernick": "monica",
+    "profilePicture": null,
+    "isadmin": false,
+    "nascimento": "2000-01-01",
+    "curso": "Informática"
+  }
+}
+
+
+6. Buscar Post por ID
+GET /posts/:postId
+
+Headers: Authorization: Bearer <TOKEN_JWT>
+
+Esperado: 200 OK + post
+
+Erro: 404 (post não encontrado)
+
+7. Deletar Post
+DELETE /delete/post
+
+Headers: Authorization: Bearer <TOKEN_JWT>
+
+Body (JSON):
+
+json
+Copiar
+Editar
+{
+  "postId": 1
+}
+Esperado: 200 OK
+
+Erro: 401 (token inválido)
+
+8. Criar Comentário
+POST /posts/:postId/comments
+
+Headers: Authorization: Bearer <TOKEN_JWT>
+
+Body (JSON):
+
+json
+Copiar
+Editar
+{
+  "content": "Comentário aqui",
+  "userId": 1,
+  "postId": 1
+}
+Esperado: 201 Created
+
+9. Listar Comentários
+GET /posts/:postId/comments
+
+Headers: Authorization: Bearer <TOKEN_JWT>
+
+Esperado: 200 OK + lista de comentários
+
+10. Deletar Comentário
+DELETE /feed/posts/:postId/comments/:commentId
+
+Headers: Authorization: Bearer <TOKEN_JWT>
+
+Esperado: 200 OK
+
+11. Curtir ou Descurtir Post
+POST /posts/:postId/like
+
+Headers: Authorization: Bearer <TOKEN_JWT>
+
+Body (JSON):
+
+json
+Copiar
+Editar
+{
+  "userId": 1,
+  "postId": 1
+}
+Esperado: 200 OK
+
+12. Ver Meu Perfil
+GET /me
+
+Headers: Authorization: Bearer <TOKEN_JWT>
+
+Esperado: 200 OK + dados do usuário logado
+
+13. Ver Perfil por Nick
+GET /perfil/:usernick
+
+Headers: Authorization: Bearer <TOKEN_JWT>
+
+Esperado: 200 OK + dados do perfil buscado
+
+14. Trocar Avatar
+PATCH /troca/avatar/:avatar
+
+Headers: Authorization: Bearer <TOKEN_JWT>
+
+Body (JSON):
+
+json
+Copiar
+Editar
+{
+  "profilePicture": "https://exemplo.com/avatar.jpg"
+}
+Esperado: 200 OK
+
