@@ -6,29 +6,39 @@ const prisma = require('../../models/prisma');
 const register = async (req, res) => {
     const { email, senha, usernick, nome, profilePicture, nascimento, curso } = req.body;
 
+    // Inicializa isAdmin como false
     let isadmin = false;
 
-    console.log('Dados recebidos para cadastro:', req.body);
-
+  
     // Validação do domínio do email
     if (/^[a-zA-Z0-9._%+-]+@aluno\.ifsp\.edu\.br$/.test(email)) {
-        isadmin = false;
+        isadmin = false; // E-mail de aluno
     } else if (/^[a-zA-Z0-9._%+-]+@ifsp\.edu\.br$/.test(email)) {
-        isadmin = true;
+        isadmin = true; // E-mail adm
     } else {
         return res.status(400).json({ msg: 'Email inválido. Use um e-mail do domínio ifsp.edu.br' });
     }
 
     try {
-        const existingMail = await prisma.user.findUnique({ where: { email } });
-        const existingUser = await prisma.user.findUnique({ where: { usernick } });
+        // Verifica se um usuário com o mesmo e-mail já existe
+        const existingMail = await prisma.user.findUnique({
+            where: { email },
+        });
 
+        // Verifica se o @user já existe no banco de dados
+        const existingUser = await prisma.user.findUnique({
+            where: { usernick },
+        });
+
+        // Se o e-mail ou matrícula já estiverem cadastrados, retorna um erro
         if (existingMail || existingUser) {
             return res.status(400).json({ msg: 'Email ou @user já cadastrados!' });
         }
 
+        // Criptografando a senha com proteção 8
         const senhaHash = await bcrypt.hash(senha, parseInt(process.env.SALT_ROUNDS) || 8);
 
+        // Cria um novo usuário no banco de dados com os dados fornecidos
         const user = await prisma.user.create({
             data: {
                 nome,
@@ -36,34 +46,22 @@ const register = async (req, res) => {
                 usernick,
                 senha: senhaHash,
                 profilePicture,
-                isadmin,
-                nascimento,
+                isadmin: isadmin,
+                nascimento: nascimento,
                 course: curso,
             }
         });
-
-        // Gera token e envia junto com os dados do usuário
-        generate_token_user(user, req, res, (token) => {
-            return res.status(201).json({
-                message: 'Usuário cadastrado com sucesso!',
-                token,
-                user: {
-                    id: user.id,
-                    nome: user.nome,
-                    email: user.email,
-                    usernick: user.usernick,
-                    profilePicture: user.profilePicture,
-                    isadmin: user.isadmin,
-                    nascimento: user.nascimento,
-                    curso: user.course
-                }
-            });
-        });
+        console.log(user); // remover isso dps
+        // Gera a sessão
+        generate_token_user(user, req, res, () => {
+            return res.status(201).json({ redirect: "/feed" });
+        })
     } catch (error) {
+        // Se ocorrer um erro inesperado, retorna um erro 500 (Internal Server Error)
         console.error(error);
-        return res.status(500).json({ msg: 'Erro interno ao cadastrar usuário, entre em contato com o suporte' });
+        res.status(500).json({ msg: 'Erro interno ao cadastrar usuario, entre em contato com o suporte' });
     }
-};
+}
 
 
 module.exports = register;

@@ -8,39 +8,46 @@ const feedRoutes = require('./routes/feedRoutes');
 const commentRoutes = require('./routes/commentRoutes')
 const authRoutes = require('./routes/authRoutes');
 const perfilRoutes = require('./routes/perfilRoutes');
+const relatorioRoutes = require('./routes/relatorioRoutes')
+const imageRoutes = require('./routes/imageRoutes');
+const fixProblemRoutes = require('./routes/fixProblemRoutes');
 
-// Importando middlewares
+
+// Importando o middlewares
 const logger = require('./middlewares/logger');
 const errorHandler = require('./utils/errorHandler');
 const cookieParser = require('cookie-parser');
 
-dotenv.config();  // Carrega as variáveis de ambiente
-const app = express();  // Criação do aplicativo Express
+dotenv.config();
+const app = express();
 
-// Configuração de CORS (Cross-Origin Resource Sharing)
+// Cors - config
 const corsOptions = {
-  origin: process.env.CLIENT_ORIGIN_URL, // URL do cliente permitida
+  origin: process.env.CLIENT_ORIGIN_URL,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true
 };
 
-// Usando o middleware CORS
-app.use(cors(corsOptions)); 
-app.use(logger);  // Middleware de log
-app.use(express.json());  // Middleware para parsear JSON
-app.use(express.urlencoded({ extended: true }));  // Middleware para lidar com dados URL-encoded
-app.use(cookieParser());  // Middleware para manipulação de cookies
+// Remova o cors config apenas em desenv
+app.use(cors(corsOptions));
+app.use(logger);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// Configuração do diretório estático (para arquivos como imagens, CSS, etc.)
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Configuração das rotas
+// Rotas
 app.use('/auth', authRoutes);
+app.use('/relatorios', relatorioRoutes);
 app.use('/user', perfilRoutes);
 app.use('/feed', feedRoutes);
+app.use('/image', imageRoutes);
+app.use('/fix-problem', fixProblemRoutes);
 app.use('/comments', commentRoutes);
 
-// Tratamento de erros (middleware)
+// app.use('/', perfilRoutes, commentRoutes, feedRoutes);
+
+// Tratamento de erros
 app.use(errorHandler);
 
-module.exports = app;  // Exporta o app para ser usado no servidor
+module.exports = app;
