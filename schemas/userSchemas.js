@@ -5,6 +5,6 @@ export const userSchema = z.object({
   senha: z.string().min(8).max(255),
   usernick: z.string().min(3).max(50),
   nome: z.string().min(3).max(100),
-  profilePicture: z.string().url().max(255).optional(),
+  profilePicture: z.string().max(255).optional(),
   isadmin: z.boolean().optional(),
 });

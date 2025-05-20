@@ -8,6 +8,8 @@ const register = async (req, res) => {
 
     let isadmin = false;
 
+    console.log('Dados recebidos para cadastro:', req.body);
+
     // Validação do domínio do email
     if (/^[a-zA-Z0-9._%+-]+@aluno\.ifsp\.edu\.br$/.test(email)) {
         isadmin = false;
@@ -62,5 +64,6 @@ const register = async (req, res) => {
         return res.status(500).json({ msg: 'Erro interno ao cadastrar usuário, entre em contato com o suporte' });
     }
 };
+
 
 module.exports = register;
