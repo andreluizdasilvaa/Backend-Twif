@@ -34,7 +34,6 @@ model comment {
   @@index([userId], map: "Comment_userId_fkey")
 }
 
-
 model notification {
   id            Int      @id @default(autoincrement())
   userId        Int

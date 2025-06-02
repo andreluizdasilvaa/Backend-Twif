@@ -4,9 +4,9 @@ const createHttpError = require('http-errors');
 
 const markNotificationsRead = asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const { notificationIds } = req.body;
+    const { notificationId } = req.body;
 
-    const result = await markNotificationsReadModel(userId, notificationIds);
+    const result = await markNotificationsReadModel(userId, notificationId);
 
     res.status(200).json({ 
         message: 'Notificações marcadas como lidas',

@@ -35,13 +35,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use(express.static(path.join(__dirname, 'public')));
 // Rotas
 app.use('/auth', authRoutes);
 app.use('/relatorios', relatorioRoutes);
 app.use('/user', perfilRoutes);
 app.use('/feed', feedRoutes);
 app.use('/image', imageRoutes);
+app.use('/image/default', express.static(path.join(__dirname, 'uploads/defaults')));
 app.use('/fix-problem', fixProblemRoutes);
 app.use('/comments', commentRoutes);
 

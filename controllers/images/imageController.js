@@ -33,4 +33,4 @@ const getImage = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { getImage };
+module.exports = getImage;

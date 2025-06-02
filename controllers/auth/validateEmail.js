@@ -16,10 +16,10 @@ const validateEmail = async (req, res) => {
         const existingUser = await prisma.user.findUnique({ where: { email } });
 
         if (existingUser) {
-            return res.status(409).json({ valido: false, msg: 'Email já está em uso.' });
+            return res.status(409).json({ valid: false, msg: 'Email já está em uso.' });
         }
 
-        return res.status(200).json({ valido: true, msg: 'Email disponível e válido.' });
+        return res.status(200).json({ valid: true, msg: 'Email disponível e válido.' });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ valido: false, msg: 'Erro ao validar email.' });

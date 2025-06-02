@@ -8,12 +8,14 @@ const loginController = require('../controllers/auth/loginController');
 const registerController = require('../controllers/auth/registerController');
 const removeSessionController = require('../controllers/auth/removeSessionController');
 const validateEmailController = require('../controllers/auth/validateEmail');
+const validateUserNick = require('../controllers/auth/validateUserNick')
 
 router.get('/validate', auth_user, validateController);
 router.post('/login', loginController);
 router.post('/register', registerController);
 router.delete('/logout', removeSessionController);
 
-router.post('/validar-email', validateEmailController);
+router.post('/validate-email', validateEmailController);
+router.post('/validate-usernick', validateUserNick)
 
 module.exports = router;
