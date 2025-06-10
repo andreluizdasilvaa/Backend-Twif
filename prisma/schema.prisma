@@ -55,6 +55,14 @@ model notification {
   @@index([userId, isViewed], map: "Notification_userId_isViewed_idx")
 }
 
+model order {
+  id          Int     @id @default(autoincrement())
+  nome        String
+  email       String
+  problema    String
+  createdAt   DateTime @default(now())
+}
+
 model post {
   id        Int       @id @default(autoincrement())
   content   String
@@ -71,8 +79,6 @@ model post {
   @@index([userId], map: "Post_userId_fkey")
 }
 
-
-
 model postdeleted {
   id        Int      @id @default(autoincrement())
   postId    Int      @unique(map: "PostDeleted_postId_key")
@@ -85,7 +91,6 @@ model postdeleted {
 
   @@index([userId], map: "PostDeleted_userId_fkey")
 }
-
 
 model user {
   id             Int      @id @default(autoincrement())

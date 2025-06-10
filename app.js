@@ -12,7 +12,6 @@ const relatorioRoutes = require('./routes/relatorioRoutes')
 const imageRoutes = require('./routes/imageRoutes');
 const fixProblemRoutes = require('./routes/fixProblemRoutes');
 
-
 // Importando o middlewares
 const logger = require('./middlewares/logger');
 const errorHandler = require('./utils/errorHandler');
@@ -42,7 +41,7 @@ app.use('/user', perfilRoutes);
 app.use('/feed', feedRoutes);
 app.use('/image', imageRoutes);
 app.use('/image/default', express.static(path.join(__dirname, 'uploads/defaults')));
-app.use('/fix-problem', fixProblemRoutes);
+app.use('/suport', fixProblemRoutes);
 app.use('/comments', commentRoutes);
 
 // app.use('/', perfilRoutes, commentRoutes, feedRoutes);
