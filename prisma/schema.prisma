@@ -59,7 +59,7 @@ model order {
   id          Int     @id @default(autoincrement())
   nome        String
   email       String
-  problema    String
+  problema    String   @db.VarChar(190)
   createdAt   DateTime @default(now())
 }
 
