@@ -11,20 +11,6 @@ const userNotifications = asyncHandler(async (req, res) => {
 
     const notifications = await userNotificationsModel(userId);
 
-    // Opcional: Marque as notificações como visualizadas
-    // Você pode implementar uma rota separada para isso também
-    /*
-    await prisma.notification.updateMany({
-        where: {
-            userId: userId,
-            isViewed: false
-        },
-        data: {
-            isViewed: true
-        }
-    });
-    */
-
     res.status(200).json(notifications);
 });
 

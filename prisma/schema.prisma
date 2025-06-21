@@ -60,6 +60,7 @@ model order {
   nome        String
   email       String
   problema    String   @db.VarChar(190)
+  isViewd     Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
 
