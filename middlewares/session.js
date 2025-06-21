@@ -2,11 +2,11 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 
 function generate_token_user(user, req, res, next) {
-    const token = jwt.sign({ id: user.id, isadmin: user.isadmin }, process.env.jwt_secret, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id, isadmin: user.isadmin }, process.env.jwt_secret, { expiresIn: '2d' }); // 2 dias
 
     res.cookie('your-session', token, {
         httpOnly: true,
-        maxAge: 3600000,
+        maxAge: 2 * 24 * 60 * 60 * 1000, // 2 dias em ms
         path: '/',
         sameSite: "None",
         secure: true
