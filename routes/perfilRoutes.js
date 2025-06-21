@@ -8,6 +8,7 @@ const userByNick = require('../controllers/perfil/userByNickController');
 const replaceAvatar = require('../controllers/perfil/replaceAvatarController');
 const userNotifications = require('../controllers/perfil/userNotificationsController.js');
 const markNotificationsRead = require('../controllers/perfil/markNotificationsReadController');
+const editInfoUser = require('../controllers/perfil/editInfoUserController');
 
 // retornar todas as informações do usuario que está acessando a rota
 router.get('/me', auth_user, userMe);
@@ -23,5 +24,8 @@ router.get('/perfil/:usernick', auth_user, userByNick);
 
 // Troca de avatar
 router.patch('/troca/avatar/:avatar', auth_user, replaceAvatar);
+
+// Editar informações do usuario
+router.patch('/troca/info/', auth_user, editInfoUser)
 
 module.exports = router;
