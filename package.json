@@ -8,7 +8,7 @@
     "seed": "node ./models/seed.js"
   },
   "keywords": [],
-  "author": "André, Isabela, Júlia, Geovana, Erick",
+  "author": "André Luiz, Erick Castilho, Geovana Barbosa e Silda Pereira",
   "license": "ISC",
   "description": "",
   "dependencies": {
